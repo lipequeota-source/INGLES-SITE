@@ -35,6 +35,7 @@ let isInteractiveMode = false;
 let isMicMode = false;
 let scoreHistory = [];
 let isManualJump = false;
+let isPlayingIntentionally = false;
 
 // Modal de Ajuda LRC
 const helpLrcBtn = document.getElementById('help-lrc-btn');
@@ -232,6 +233,7 @@ audioPlayer.addEventListener('loadedmetadata', () => {
 function togglePlayPause() {
     if (!audioPlayer.src) return;
     if (audioPlayer.paused) {
+        isPlayingIntentionally = true; // Avisa ao sistema que VOCÊ quis dar play
         audioPlayer.play();
         
         // Desbloqueia os áudios da torcida silenciosamente no 1º clique (Exigência do iOS/Android)
@@ -240,10 +242,22 @@ function togglePlayPause() {
         
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     } else {
+        isPlayingIntentionally = false; // Avisa ao sistema que VOCÊ quis pausar
         audioPlayer.pause();
         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
 }
+
+// --- SISTEMA ANTI-PAUSA (Prevenção de roubo de foco do Celular) ---
+audioPlayer.addEventListener('pause', () => {
+    // Se a música pausar mas VOCÊ não apertou o botão (ex: o microfone roubou o foco)
+    if (isPlayingIntentionally && audioPlayer.currentTime < audioPlayer.duration) {
+        setTimeout(() => {
+            // Força a música a voltar a tocar imediatamente!
+            if (isPlayingIntentionally) audioPlayer.play().catch(()=>{});
+        }, 100); 
+    }
+});
 
 if(playPauseBtn) playPauseBtn.addEventListener('click', togglePlayPause);
 
@@ -541,6 +555,8 @@ document.addEventListener('keydown', function(e) {
 
 // Lógica TDAH: Gamificação (Média Global ao Final da Música)
 audioPlayer.addEventListener('ended', () => {
+    isPlayingIntentionally = false; // Reseta a intenção de tocar pois a música acabou
+    
     // Garante que o Loop funcione até mesmo se for a última linha da música
     if (isLoopingLine && currentActiveIndex !== -1) {
         audioPlayer.currentTime = mergedLyrics[currentActiveIndex].time + 0.01;
