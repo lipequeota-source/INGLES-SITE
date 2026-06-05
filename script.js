@@ -9,6 +9,14 @@ let parsedLyricsPt = [];
 let mergedLyrics = [];
 let currentActiveIndex = -1;
 
+// Injeta uma dica de foco no placeholder inicial (se existir no HTML)
+document.addEventListener("DOMContentLoaded", () => {
+    const placeholder = document.querySelector('.placeholder');
+    if(placeholder) {
+        placeholder.innerHTML = "🎶 Carregue o áudio e as letras (EN/PT) acima.<br><br><span style='color:#3b82f6; font-size:1.1rem; font-weight:bold;'>💡 Dica de Foco: Use a [BARRA DE ESPAÇO] para pausar e tocar a música sem precisar usar o mouse!</span>";
+    }
+});
+
 audioUpload.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {

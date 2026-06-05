@@ -1,6 +1,6 @@
 body {
-    background-color: #f0f2f5;
-    color: #333;
+    background-color: #121212;
+    color: #e4e4e7;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
     padding: 0;
@@ -12,18 +12,19 @@ body {
 }
 
 .top-bar {
-    background: #2c3e50;
+    background: #18181b;
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 10;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border-bottom: 1px solid #27272a;
 }
 
 .controls {
     display: flex;
-    gap: 15px;
+    gap: 12px;
 }
 
 input[type="file"] {
@@ -31,10 +32,10 @@ input[type="file"] {
 }
 
 .custom-file-upload {
-    padding: 10px 15px;
+    padding: 12px 18px;
     cursor: pointer;
-    background-color: #3498db;
-    color: white;
+    background-color: #3b82f6;
+    color: #ffffff;
     font-weight: bold;
     font-size: 14px;
     border-radius: 5px;
@@ -42,7 +43,7 @@ input[type="file"] {
 }
 
 .custom-file-upload:hover {
-    background-color: #2980b9;
+    background-color: #2563eb;
 }
 
 audio {
@@ -58,12 +59,13 @@ audio {
     position: relative;
     padding: 20px;
     box-sizing: border-box;
-    background-color: #ecf0f1;
+    background-color: #121212;
 }
 
 h1 {
-    color: #2c3e50;
+    color: #ffffff;
     margin-bottom: 20px;
+    letter-spacing: 0.05em;
 }
 
 .lyrics-container {
@@ -73,9 +75,9 @@ h1 {
     overflow-y: auto;
     text-align: left;
     padding: 30px 40px;
-    background: white;
+    background: #18181b;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
     scroll-behavior: smooth;
     scrollbar-width: none;
 }
@@ -87,7 +89,7 @@ h1 {
 .lyric-pair {
     margin: 35px 0;
     opacity: 0.15;
-    filter: blur(1.5px);
+    filter: blur(2px);
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     padding: 15px 20px;
     border-left: 5px solid transparent;
@@ -97,81 +99,105 @@ h1 {
 .lyric-pair.active {
     opacity: 1;
     filter: blur(0);
-    transform: scale(1.02);
-    background-color: #f8f9fa;
-    border-left: 5px solid #3498db;
-    box-shadow: 4px 4px 15px rgba(0,0,0,0.03);
+    transform: scale(1.03);
+    background-color: #27272a;
+    border-left: 5px solid #3b82f6;
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.2);
 }
 
 .lyric-en {
     font-size: 2.2rem;
     font-weight: 800;
-    color: #2c3e50;
+    color: #ffffff;
     margin: 0 0 8px 0;
-    line-height: 1.2;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
 }
 
 .lyric-pt {
     font-size: 1.3rem;
-    color: #576574;
+    color: #a1a1aa;
     margin: 0;
     font-style: normal;
     font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
 .placeholder {
     font-size: 1.5rem;
-    color: #95a5a6;
+    color: #71717a;
     margin-top: 20vh;
+    text-align: center;
 }
 
 /* Responsividade para Celulares (ex: Samsung A15) */
 @media (max-width: 768px) {
     .top-bar {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
         padding: 15px 10px;
     }
 
     .controls {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
         width: 100%;
-        gap: 10px;
+        gap: 8px;
     }
 
     .custom-file-upload {
         text-align: center;
-        width: 100%;
+        width: 48%; /* Botões maiores e lado a lado no topo */
         box-sizing: border-box;
-        padding: 12px;
+        padding: 15px 10px;
+        font-size: 13px;
     }
 
     audio {
         width: 100%;
+        margin-top: 5px;
     }
 
     h1 {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         text-align: center;
         margin-bottom: 10px;
     }
 
+    .main-content {
+        padding: 10px 0; /* Remove padding lateral no celular para dar mais espaço à letra */
+    }
+
     .lyrics-container {
-        width: 95%;
-        height: 50vh; /* Reduz a altura para compensar o menu empilhado no topo */
-        padding: 15px 10px;
+        width: 100%;
+        height: 65vh; /* Aumenta a área de leitura */
+        padding: 20px 15px;
+        border-radius: 0; /* Tela cheia no celular */
+        box-shadow: none;
+    }
+
+    .lyric-pair {
+        margin: 25px 0;
+        padding: 15px 12px;
+    }
+
+    .lyric-pair.active {
+        border-left: 4px solid #3b82f6;
+        transform: scale(1.02);
     }
 
     .lyric-en {
-        font-size: 1.5rem; /* Letras menores para não vazarem da tela */
+        font-size: 1.4rem; /* Tamanho confortável para leitura rápida */
     }
 
     .lyric-pt {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
     }
 
     .placeholder {
         font-size: 1.2rem;
         margin-top: 10vh;
+        padding: 0 20px;
     }
 }
