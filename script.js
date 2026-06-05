@@ -16,6 +16,16 @@ const speechFeedback = document.getElementById('speech-feedback');
 const speechText = document.getElementById('speech-text');
 const speechScore = document.getElementById('speech-score');
 
+// Just Dance Feedback
+const jdFeedbackOverlay = document.getElementById('jd-feedback-overlay');
+const jdFeedbackText = document.getElementById('jd-feedback-text');
+
+// Efeitos Sonoros Just Dance
+const perfectSound = new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheer.ogg');
+perfectSound.volume = 0.5;
+const goodSound = new Audio('https://actions.google.com/sounds/v1/crowds/light_applause.ogg');
+goodSound.volume = 0.5;
+
 let parsedLyricsEn = [];
 let parsedLyricsPt = [];
 let mergedLyrics = [];
@@ -256,15 +266,15 @@ if (SpeechRecognition) {
     recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.lang = 'en-US'; 
-    recognition.interimResults = false;
+    recognition.interimResults = true; // Escuta em TEMPO REAL (Não espera pausar)
 
     recognition.onresult = (event) => {
         if (!isMicMode) return;
         const lastResult = event.results[event.results.length - 1];
-        if (lastResult.isFinal && currentActiveIndex !== -1) {
+        if (currentActiveIndex !== -1) {
             const transcript = lastResult[0].transcript.trim();
             const targetText = mergedLyrics[currentActiveIndex].enText;
-            evaluateSpeech(transcript, targetText);
+            evaluateSpeech(transcript, targetText, lastResult.isFinal);
         }
     };
 
@@ -292,30 +302,81 @@ if(micModeBtn) micModeBtn.addEventListener('click', () => {
     }
 });
 
-function evaluateSpeech(transcript, target) {
-    clearTimeout(feedbackTimeout);
-    speechFeedback.classList.remove('hidden');
-    speechText.innerHTML = `Ouviu: <i>"${transcript}"</i>`;
+let lineMaxScores = {}; // Memoriza a maior nota da linha atual para não tocar o som repetido
 
+function evaluateSpeech(transcript, target, isFinal) {
     // Limpa pontuações e transforma em arrays de palavras para comparar
     const wordsSpoken = transcript.toLowerCase().replace(/[^\w\s']/g, '').split(/\s+/);
     const wordsTarget = target.toLowerCase().replace(/[^\w\s']/g, '').split(/\s+/);
 
     let matches = 0;
-    wordsTarget.forEach(tw => { if (wordsSpoken.includes(tw)) matches++; });
+    // Usa um Set para contar palavras únicas e evitar pontuação extra por repetição
+    const spokenSet = new Set(wordsSpoken);
+    wordsTarget.forEach(tw => { if (spokenSet.has(tw)) matches++; });
 
     let percentage = Math.round((matches / wordsTarget.length) * 100);
     if (percentage > 100) percentage = 100;
 
-    scoreHistory.push(percentage); // Armazena a pontuação atual no histórico
-
-    speechScore.innerText = `${percentage}% de Precisão`;
-    speechScore.className = 'speech-score'; 
-    if (percentage >= 80) speechScore.classList.add('score-good');
-    else if (percentage >= 50) speechScore.classList.add('score-ok');
-    else speechScore.classList.add('score-bad');
+    const prevMax = lineMaxScores[currentActiveIndex] || 0;
     
-    feedbackTimeout = setTimeout(() => { speechFeedback.classList.add('hidden'); }, 5000);
+    // Mantém a maior pontuação atingida durante a frase (interim)
+    if (percentage > prevMax) {
+        lineMaxScores[currentActiveIndex] = percentage;
+    } else {
+        percentage = prevMax; 
+    }
+
+    if (isFinal) {
+        scoreHistory.push(percentage); // Armazena no histórico só no final da frase
+    }
+
+    // --- Lógica de Feedback "Just Dance" ---
+    let feedbackWord = '';
+    let feedbackClass = '';
+    let shouldPlaySound = false;
+
+    if (percentage >= 90) {
+        feedbackWord = 'DEMAIS! 🌟';
+        feedbackClass = 'jd-perfect';
+        if (prevMax < 90) shouldPlaySound = true; // Toca som só se for a 1ª vez atingindo a meta
+    } else if (percentage >= 70) {
+        feedbackWord = 'ÓTIMO! 🔥';
+        feedbackClass = 'jd-good';
+        if (prevMax < 70) shouldPlaySound = true;
+    } else if (percentage >= 40) {
+        feedbackWord = 'BOM! 👍';
+        feedbackClass = 'jd-ok';
+    } else {
+        return;
+    }
+    
+    // Se não for resultado final e a animação/som dessa meta já tocou, não faça nada
+    if (!shouldPlaySound && !isFinal && prevMax >= 40) return;
+
+    jdFeedbackText.textContent = feedbackWord;
+    jdFeedbackOverlay.className = `jd-feedback-overlay ${feedbackClass}`; // Remove 'hidden' e adiciona a cor
+    
+    // Reinicia a animação CSS violentamente para dar o Pop na tela
+    jdFeedbackText.style.animation = 'none';
+    void jdFeedbackText.offsetWidth; 
+    jdFeedbackText.style.animation = 'jd-pop 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards';
+
+    lyricsContainer.classList.add(`jd-glow-${feedbackClass.replace('jd-', '')}`);
+
+    if (shouldPlaySound) {
+        if (percentage >= 90) { perfectSound.currentTime = 0; perfectSound.play().catch(e=>{}); }
+        else if (percentage >= 70) { goodSound.currentTime = 0; goodSound.play().catch(e=>{}); }
+    }
+
+    // Limpa o feedback após a animação
+    clearTimeout(feedbackTimeout);
+    feedbackTimeout = setTimeout(() => {
+        jdFeedbackOverlay.className = 'jd-feedback-overlay hidden';
+        lyricsContainer.classList.remove(`jd-glow-perfect`, `jd-glow-good`, `jd-glow-ok`);
+    }, 1200); // Duração da animação
+    
+    // O feedback antigo (caixa pequena) foi removido para dar lugar ao Just Dance.
+    // Ele só será usado no final da música agora.
 }
 
 audioPlayer.addEventListener('timeupdate', () => {

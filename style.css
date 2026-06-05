@@ -373,10 +373,10 @@ h1 {
     }
 
     .custom-file-upload {
-        text-align: center;
-        width: 48%; /* Botões maiores e lado a lado no topo */
+        flex-grow: 1; /* Faz os botões ocuparem o espaço igualmente */
+        justify-content: center;
         box-sizing: border-box;
-        padding: 15px 10px;
+        padding: 12px 8px;
         font-size: 13px;
     }
 
@@ -413,7 +413,7 @@ h1 {
     }
 
     .lyric-pair {
-        margin: 25px 0;
+        margin: 20px 0; /* Margem menor para ver mais letras */
         padding: 15px 12px;
     }
 
@@ -423,7 +423,11 @@ h1 {
     }
 
     .lyric-en {
-        font-size: 1.4rem; /* Tamanho confortável para leitura rápida */
+        font-size: 1.5rem; /* Tamanho confortável para leitura rápida */
+    }
+
+    #jd-feedback-text {
+        font-size: 22vw; /* Texto de feedback GIgane no celular */
     }
 
     .lyric-pt {
