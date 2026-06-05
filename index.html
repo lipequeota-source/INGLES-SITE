@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprenda Inglês com Música</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="controls">
+            <label for="audio-upload" class="custom-file-upload">🎵 Áudio (MP3)</label>
+            <input type="file" id="audio-upload" accept="audio/mp3, audio/mpeg">
+
+            <label for="lrc-en-upload" class="custom-file-upload">🇺🇸 Legenda (Inglês)</label>
+            <input type="file" id="lrc-en-upload" accept=".lrc, .txt">
+
+            <label for="lrc-pt-upload" class="custom-file-upload">🇧🇷 Legenda (Português)</label>
+            <input type="file" id="lrc-pt-upload" accept=".lrc, .txt">
+        </div>
+        <audio id="audio-player" controls></audio>
+    </div>
+
+    <div class="main-content">
+        <h1>Aprenda Inglês Cantando</h1>
+        
+        <div class="lyrics-container" id="lyrics-container">
+            <div class="placeholder">Carregue o áudio e as legendas (.lrc) para começar...</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

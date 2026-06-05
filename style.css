@@ -1,0 +1,162 @@
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-bar {
+    background: #2c3e50;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.custom-file-upload:hover {
+    background-color: #2980b9;
+}
+
+audio {
+    height: 40px;
+    border-radius: 5px;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #ecf0f1;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.lyrics-container {
+    width: 90%;
+    max-width: 800px;
+    height: 60vh;
+    overflow-y: auto;
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    scroll-behavior: smooth;
+}
+
+.lyric-pair {
+    margin: 20px 0;
+    opacity: 0.3;
+    transition: all 0.3s ease;
+}
+
+.lyric-pair.active {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.lyric-en {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0 0 5px 0;
+}
+
+.lyric-pt {
+    font-size: 1.5rem;
+    color: #7f8c8d;
+    margin: 0;
+    font-style: italic;
+}
+
+.placeholder {
+    font-size: 1.5rem;
+    color: #95a5a6;
+    margin-top: 20vh;
+}
+
+/* Responsividade para Celulares (ex: Samsung A15) */
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 10px;
+    }
+
+    .controls {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .custom-file-upload {
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+    }
+
+    audio {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .lyrics-container {
+        width: 95%;
+        height: 50vh; /* Reduz a altura para compensar o menu empilhado no topo */
+        padding: 15px 10px;
+    }
+
+    .lyric-en {
+        font-size: 1.5rem; /* Letras menores para não vazarem da tela */
+    }
+
+    .lyric-pt {
+        font-size: 1.1rem;
+    }
+
+    .placeholder {
+        font-size: 1.2rem;
+        margin-top: 10vh;
+    }
+}
