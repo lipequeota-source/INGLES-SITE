@@ -1,6 +1,5 @@
 const audioUpload = document.getElementById('audio-upload');
-const lrcEnUpload = document.getElementById('lrc-en-upload');
-const lrcPtUpload = document.getElementById('lrc-pt-upload');
+const lrcUpload = document.getElementById('lrc-upload');
 const audioPlayer = document.getElementById('audio-player');
 const lyricsContainer = document.getElementById('lyrics-container');
 
@@ -23,11 +22,10 @@ const jdFeedbackText = document.getElementById('jd-feedback-text');
 // Efeitos Sonoros Just Dance
 const perfectSound = new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheer.ogg');
 perfectSound.volume = 0.5;
-const goodSound = new Audio('https://actions.google.com/sounds/v1/crowds/light_applause.ogg');
-goodSound.volume = 0.5;
+const failSound = new Audio('https://actions.google.com/sounds/v1/alarms/buzzer.ogg');
+failSound.volume = 0.4;
 
-let parsedLyricsEn = [];
-let parsedLyricsPt = [];
+let parsedLyrics = [];
 let mergedLyrics = [];
 let currentActiveIndex = -1;
 let isLoopingLine = false;
@@ -48,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const placeholder = document.querySelector('.placeholder');
     if(placeholder) {
         placeholder.innerHTML = `
-            <div id="upload-msg" style="margin-bottom: 15px; color: #e4e4e7; font-size: 1.1rem;">🎶 Carregue o áudio e as letras (EN/PT) acima.</div>
+            <div id="upload-msg" style="margin-bottom: 15px; color: #e4e4e7; font-size: 1.1rem;">🎶 Carregue o áudio e a letra (LRC) da música brasileira.</div>
             <div style="background: #18181b; padding: 15px 25px; border-radius: 12px; border: 1px solid #27272a; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 12px; text-align: left; max-width: 600px; width: 90%;">
                 <div style="color: #3b82f6; font-size: 1.2rem; font-weight: bold; text-align: center; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <i class="fas fa-brain"></i> Dicas de Foco TDAH
@@ -60,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span style="background: #27272a; padding: 8px; border-radius: 8px; color: #e4e4e7; width: 35px; text-align: center;"><i class="fas fa-gamepad"></i></span> Ative o Modo Game para esconder palavras.
                 </div>
                 <div style="color: #a1a1aa; font-size: 0.95rem; display: flex; align-items: center; gap: 12px;">
-                    <span style="background: #27272a; padding: 8px; border-radius: 8px; color: #e4e4e7; width: 35px; text-align: center;"><i class="fas fa-microphone"></i></span> Use o Modo Karaokê para avaliar sua fala!
+                    <span style="background: #ef4444; padding: 8px; border-radius: 8px; color: white; width: 35px; text-align: center;"><i class="fas fa-skull"></i></span> <b>SOBREVIVÊNCIA:</b> Se errar uma palavra, você perde!
                 </div>
             </div>
         `;
@@ -98,16 +96,9 @@ audioUpload.addEventListener('change', function(e) {
     }
 });
 
-lrcEnUpload.addEventListener('change', function(e) {
+lrcUpload.addEventListener('change', function(e) {
     handleLrcUpload(e, (parsed) => {
-        parsedLyricsEn = parsed;
-        mergeAndRenderLyrics();
-    });
-});
-
-lrcPtUpload.addEventListener('change', function(e) {
-    handleLrcUpload(e, (parsed) => {
-        parsedLyricsPt = parsed;
+        parsedLyrics = parsed;
         mergeAndRenderLyrics();
     });
 });
@@ -149,7 +140,7 @@ function parseLRC(text) {
 }
 
 function mergeAndRenderLyrics() {
-    if (parsedLyricsEn.length === 0) return;
+    if (parsedLyrics.length === 0) return;
     
     const uploadMsg = document.getElementById('upload-msg');
     if (uploadMsg) uploadMsg.style.display = 'none';
@@ -157,26 +148,16 @@ function mergeAndRenderLyrics() {
     mergedLyrics = [];
     currentActiveIndex = -1;
     
-    parsedLyricsEn.forEach((enLine, index) => {
-        let ptText = "";
-        if (parsedLyricsPt.length > 0) {
-            // Encontra a linha em português mais próxima no tempo (tolerância de 1 segundo)
-            const matchingPtLine = parsedLyricsPt.find(ptLine => Math.abs(ptLine.time - enLine.time) < 1.0);
-            if (matchingPtLine) {
-                ptText = matchingPtLine.text;
-            }
-        }
-        
+    parsedLyrics.forEach((line, index) => {
         // Estima a duração da linha baseada na próxima (ou 5 segundos para a última)
         let duration = 5;
-        if (index < parsedLyricsEn.length - 1) {
-            duration = parsedLyricsEn[index + 1].time - enLine.time;
+        if (index < parsedLyrics.length - 1) {
+            duration = parsedLyrics[index + 1].time - line.time;
         }
 
         mergedLyrics.push({
-            time: enLine.time,
-            enText: enLine.text,
-            ptText: ptText,
+            time: line.time,
+            enText: line.text, // Manteve-se o nome da variável para não quebrar a lógica
             duration: Math.max(duration, 0.5) // mínimo de 0.5s para evitar bugs de divisão
         });
     });
@@ -207,12 +188,7 @@ function renderLyrics() {
         const words = line.enText.trim().split(/\s+/);
         pEn.innerHTML = words.map(w => `<span class="word">${w}</span>`).join(' ');
         
-        const pPt = document.createElement('p');
-        pPt.className = 'lyric-pt';
-        pPt.innerText = line.ptText;
-        
         div.appendChild(pEn);
-        div.appendChild(pPt);
         lyricsContainer.appendChild(div);
     });
 }
@@ -247,7 +223,7 @@ function togglePlayPause() {
         
         // Desbloqueia os áudios da torcida silenciosamente no 1º clique (Exigência do iOS/Android)
         perfectSound.play().then(() => perfectSound.pause()).catch(()=>{});
-        goodSound.play().then(() => goodSound.pause()).catch(()=>{});
+        failSound.play().then(() => failSound.pause()).catch(()=>{});
         
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     } else {
@@ -292,7 +268,7 @@ let feedbackTimeout;
 if (SpeechRecognition) {
     recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.lang = 'en-US'; 
+    recognition.lang = 'pt-BR'; // Mudado para entender Músicas Brasileiras
     recognition.interimResults = true; // Escuta em TEMPO REAL (Não espera pausar)
 
     recognition.onresult = (event) => {
@@ -346,7 +322,7 @@ if(micModeBtn) micModeBtn.addEventListener('click', () => {
     
     // Desbloqueia os sons no celular caso ative o microfone primeiro
     perfectSound.play().then(() => perfectSound.pause()).catch(()=>{});
-    goodSound.play().then(() => goodSound.pause()).catch(()=>{});
+    failSound.play().then(() => failSound.pause()).catch(()=>{});
 
     if (isMicMode) {
         try { recognition.start(); } catch (e) {}
@@ -380,32 +356,45 @@ function evaluateSpeech(transcript, target, isFinal) {
         percentage = prevMax; 
     }
 
-    if (isFinal) {
-        scoreHistory.push(percentage); // Armazena no histórico só no final da frase
-    }
-
     // --- Lógica de Feedback "Just Dance" ---
     let feedbackWord = '';
     let feedbackClass = '';
-    let shouldPlaySound = false;
 
-    if (percentage >= 90) {
-        feedbackWord = 'DEMAIS! 🌟';
-        feedbackClass = 'jd-perfect';
-        if (prevMax < 90) shouldPlaySound = true; // Toca som só se for a 1ª vez atingindo a meta
-    } else if (percentage >= 70) {
-        feedbackWord = 'ÓTIMO! 🔥';
-        feedbackClass = 'jd-good';
-        if (prevMax < 70) shouldPlaySound = true;
-    } else if (percentage >= 40) {
-        feedbackWord = 'BOM! 👍';
-        feedbackClass = 'jd-ok';
+    if (isFinal) {
+        scoreHistory.push(percentage);
+        if (percentage < 100) {
+            feedbackWord = 'PERDEU! ❌';
+            feedbackClass = 'jd-lost';
+            
+            failSound.currentTime = 0;
+            failSound.play().catch(e=>{});
+            
+            // Punição: Morte Súbita! A música para.
+            isPlayingIntentionally = false;
+            if (antiPauseInterval) clearInterval(antiPauseInterval);
+            audioPlayer.pause();
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            
+            // Volta pro início da frase para o usuário tentar sobreviver novamente
+            audioPlayer.currentTime = mergedLyrics[currentActiveIndex].time + 0.01;
+        } else {
+            feedbackWord = 'PERFEITO! 🌟';
+            feedbackClass = 'jd-perfect';
+            perfectSound.currentTime = 0;
+            perfectSound.play().catch(e=>{});
+        }
     } else {
-        return;
+        if (percentage === 100) {
+            feedbackWord = 'PERFEITO! 🌟';
+            feedbackClass = 'jd-perfect';
+        } else if (percentage >= 50) {
+            feedbackWord = 'QUASE...';
+            feedbackClass = 'jd-ok';
+        } else {
+            return; // Ignora notas baixas enquanto o usuário ainda está cantando
+        }
+        if (prevMax >= 50 && percentage < 100) return; // Evita piscar "QUASE" repetidas vezes
     }
-    
-    // Se não for resultado final e a animação/som dessa meta já tocou, não faça nada
-    if (!shouldPlaySound && !isFinal && prevMax >= 40) return;
 
     jdFeedbackText.textContent = feedbackWord;
     jdFeedbackOverlay.className = `jd-feedback-overlay ${feedbackClass}`; // Remove 'hidden' e adiciona a cor

@@ -1,3 +1,4 @@
+/* Garante que qualquer Scroll View do site fique "sem linha" (barra oculta) */
 * {
     scrollbar-width: none; /* Firefox */
 }
@@ -309,6 +310,7 @@ h1 {
 .lyrics-container.jd-glow-perfect { animation: border-glow-perfect 1.5s ease-out; }
 .lyrics-container.jd-glow-good { animation: border-glow-good 1.5s ease-out; }
 .lyrics-container.jd-glow-ok { animation: border-glow-ok 1.5s ease-out; }
+.lyrics-container.jd-glow-lost { animation: border-glow-lost 1.5s ease-out; }
 
 @keyframes border-glow-perfect {
     0% { box-shadow: 0 0 30px 10px rgba(59, 130, 246, 0.7), 0 8px 25px rgba(0,0,0,0.4); }
@@ -321,6 +323,10 @@ h1 {
 @keyframes border-glow-ok {
     0% { box-shadow: 0 0 30px 10px rgba(250, 204, 21, 0.6), 0 8px 25px rgba(0,0,0,0.4); }
     100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0), 0 8px 25px rgba(0,0,0,0.4); }
+}
+@keyframes border-glow-lost {
+    0% { box-shadow: 0 0 30px 10px rgba(239, 68, 68, 0.8), 0 8px 25px rgba(0,0,0,0.4); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 8px 25px rgba(0,0,0,0.4); }
 }
 
 .jd-feedback-overlay {
@@ -336,6 +342,7 @@ h1 {
     transition: opacity 0.5s ease-out;
     background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 80%);
 }
+.jd-feedback-overlay.jd-lost { background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.4) 0%, rgba(0,0,0,0) 80%); }
 .jd-feedback-overlay:not(.hidden) { opacity: 1; }
 .jd-feedback-overlay.hidden { display: none; }
 
@@ -352,6 +359,7 @@ h1 {
 .jd-perfect #jd-feedback-text { color: #60a5fa; }
 .jd-good #jd-feedback-text { color: #4ade80; }
 .jd-ok #jd-feedback-text { color: #facc15; }
+.jd-lost #jd-feedback-text { color: #ef4444; text-shadow: 0 5px 20px rgba(0,0,0,0.9), 0 0 80px #ef4444; }
 
 @keyframes jd-pop {
     0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
