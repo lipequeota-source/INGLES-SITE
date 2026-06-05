@@ -36,6 +36,7 @@ let isMicMode = false;
 let scoreHistory = [];
 let isManualJump = false;
 let isPlayingIntentionally = false;
+let antiPauseInterval = null;
 
 // Modal de Ajuda LRC
 const helpLrcBtn = document.getElementById('help-lrc-btn');
@@ -234,7 +235,15 @@ function togglePlayPause() {
     if (!audioPlayer.src) return;
     if (audioPlayer.paused) {
         isPlayingIntentionally = true; // Avisa ao sistema que VOCÊ quis dar play
-        audioPlayer.play();
+        audioPlayer.play().catch(()=>{});
+        
+        // Cão de Guarda Agressivo: Checa o tempo todo se o celular tentou roubar o áudio
+        if (antiPauseInterval) clearInterval(antiPauseInterval);
+        antiPauseInterval = setInterval(() => {
+            if (isPlayingIntentionally && audioPlayer.paused && audioPlayer.currentTime < audioPlayer.duration) {
+                audioPlayer.play().catch(()=>{});
+            }
+        }, 150); // Bate de frente com o bloqueio a cada 150 milissegundos!
         
         // Desbloqueia os áudios da torcida silenciosamente no 1º clique (Exigência do iOS/Android)
         perfectSound.play().then(() => perfectSound.pause()).catch(()=>{});
@@ -243,6 +252,7 @@ function togglePlayPause() {
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     } else {
         isPlayingIntentionally = false; // Avisa ao sistema que VOCÊ quis pausar
+        if (antiPauseInterval) clearInterval(antiPauseInterval); // Desliga o cão de guarda
         audioPlayer.pause();
         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
@@ -252,10 +262,8 @@ function togglePlayPause() {
 audioPlayer.addEventListener('pause', () => {
     // Se a música pausar mas VOCÊ não apertou o botão (ex: o microfone roubou o foco)
     if (isPlayingIntentionally && audioPlayer.currentTime < audioPlayer.duration) {
-        setTimeout(() => {
-            // Força a música a voltar a tocar imediatamente!
-            if (isPlayingIntentionally) audioPlayer.play().catch(()=>{});
-        }, 100); 
+        // Reage à pausa com força total e imediata
+        audioPlayer.play().catch(()=>{});
     }
 });
 
@@ -556,6 +564,7 @@ document.addEventListener('keydown', function(e) {
 // Lógica TDAH: Gamificação (Média Global ao Final da Música)
 audioPlayer.addEventListener('ended', () => {
     isPlayingIntentionally = false; // Reseta a intenção de tocar pois a música acabou
+    if (antiPauseInterval) clearInterval(antiPauseInterval);
     
     // Garante que o Loop funcione até mesmo se for a última linha da música
     if (isLoopingLine && currentActiveIndex !== -1) {
