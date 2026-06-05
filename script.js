@@ -233,6 +233,11 @@ function togglePlayPause() {
     if (!audioPlayer.src) return;
     if (audioPlayer.paused) {
         audioPlayer.play();
+        
+        // Desbloqueia os áudios da torcida silenciosamente no 1º clique (Exigência do iOS/Android)
+        perfectSound.play().then(() => perfectSound.pause()).catch(()=>{});
+        goodSound.play().then(() => goodSound.pause()).catch(()=>{});
+        
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     } else {
         audioPlayer.pause();
@@ -317,6 +322,10 @@ if(micModeBtn) micModeBtn.addEventListener('click', () => {
     micModeBtn.classList.toggle('active-toggle', isMicMode);
     micModeBtn.classList.toggle('mic-pulsing', isMicMode);
     
+    // Desbloqueia os sons no celular caso ative o microfone primeiro
+    perfectSound.play().then(() => perfectSound.pause()).catch(()=>{});
+    goodSound.play().then(() => goodSound.pause()).catch(()=>{});
+
     if (isMicMode) {
         try { recognition.start(); } catch (e) {}
     } else {

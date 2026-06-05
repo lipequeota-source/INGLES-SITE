@@ -1,4 +1,3 @@
-/* Garante que qualquer Scroll View do site fique "sem linha" (barra oculta) */
 * {
     scrollbar-width: none; /* Firefox */
 }
@@ -13,7 +12,7 @@ body {
     margin: 0;
     padding: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh; /* dvh corrige o bug da barra do navegador em celulares */
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -304,6 +303,62 @@ h1 {
     width: 100%;
     overflow-y: auto; /* Transforma em Scroll View */
     max-height: 40vh; /* Impede que esmague as letras na tela */
+}
+
+/* --- Just Dance Feedback Styles --- */
+.lyrics-container.jd-glow-perfect { animation: border-glow-perfect 1.5s ease-out; }
+.lyrics-container.jd-glow-good { animation: border-glow-good 1.5s ease-out; }
+.lyrics-container.jd-glow-ok { animation: border-glow-ok 1.5s ease-out; }
+
+@keyframes border-glow-perfect {
+    0% { box-shadow: 0 0 30px 10px rgba(59, 130, 246, 0.7), 0 8px 25px rgba(0,0,0,0.4); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), 0 8px 25px rgba(0,0,0,0.4); }
+}
+@keyframes border-glow-good {
+    0% { box-shadow: 0 0 30px 10px rgba(74, 222, 128, 0.7), 0 8px 25px rgba(0,0,0,0.4); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0), 0 8px 25px rgba(0,0,0,0.4); }
+}
+@keyframes border-glow-ok {
+    0% { box-shadow: 0 0 30px 10px rgba(250, 204, 21, 0.6), 0 8px 25px rgba(0,0,0,0.4); }
+    100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0), 0 8px 25px rgba(0,0,0,0.4); }
+}
+
+.jd-feedback-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 80%);
+}
+.jd-feedback-overlay:not(.hidden) { opacity: 1; }
+.jd-feedback-overlay.hidden { display: none; }
+
+#jd-feedback-text {
+    font-size: 14vw;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-align: center;
+    text-shadow: 0 5px 20px rgba(0,0,0,0.9), 0 0 50px currentColor;
+}
+
+.jd-perfect #jd-feedback-text { color: #60a5fa; }
+.jd-good #jd-feedback-text { color: #4ade80; }
+.jd-ok #jd-feedback-text { color: #facc15; }
+
+@keyframes jd-pop {
+    0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+    25% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+    50% { transform: scale(1) rotate(0deg); opacity: 1; text-shadow: 0 5px 20px rgba(0,0,0,0.9), 0 0 80px currentColor; }
+    80% { transform: scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: scale(1.5) rotate(15deg); opacity: 0; filter: blur(10px); }
 }
 
 /* --- Modal Help --- */
