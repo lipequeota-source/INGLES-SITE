@@ -270,16 +270,38 @@ if (SpeechRecognition) {
 
     recognition.onresult = (event) => {
         if (!isMicMode) return;
-        const lastResult = event.results[event.results.length - 1];
-        if (currentActiveIndex !== -1) {
-            const transcript = lastResult[0].transcript.trim();
+        
+        // Pega os resultados de forma mais robusta para blocos de áudio de fones bluetooth/mobile
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
+        
+        const currentTranscript = (finalTranscript || interimTranscript).trim();
+
+        if (currentActiveIndex !== -1 && currentTranscript) {
             const targetText = mergedLyrics[currentActiveIndex].enText;
-            evaluateSpeech(transcript, targetText, lastResult.isFinal);
+            evaluateSpeech(currentTranscript, targetText, !!finalTranscript);
         }
     };
 
+    recognition.onerror = (event) => {
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            isMicMode = false;
+            micModeBtn.classList.remove('active-toggle', 'mic-pulsing');
+            alert("Permissão de microfone negada ou indisponível.");
+        }
+        // Outros erros como 'no-speech' (silêncio longo do celular) cairão no onend automaticamente e ele tentará religar sem estragar o jogo.
+    };
+
     recognition.onend = () => {
-        // Se o modo estiver ativo, o microfone reabre (comportamento contínuo)
+        // Se o modo estiver ativo, o microfone reabre (comportamento contínuo perfeito para mobile)
         if (isMicMode) {
             try { recognition.start(); } catch (e) {}
         }
@@ -293,6 +315,7 @@ if(micModeBtn) micModeBtn.addEventListener('click', () => {
     }
     isMicMode = !isMicMode;
     micModeBtn.classList.toggle('active-toggle', isMicMode);
+    micModeBtn.classList.toggle('mic-pulsing', isMicMode);
     
     if (isMicMode) {
         try { recognition.start(); } catch (e) {}
