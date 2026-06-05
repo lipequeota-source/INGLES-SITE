@@ -145,3 +145,17 @@ audioPlayer.addEventListener('timeupdate', () => {
         }
     }
 });
+
+// Atalho de teclado (Barra de Espaço) para pausar/tocar a música
+document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+        e.preventDefault(); // Evita a rolagem da página
+        if (audioPlayer.src) {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        }
+    }
+});
